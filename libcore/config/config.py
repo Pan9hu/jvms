@@ -2,6 +2,7 @@
 # -*- coding:utf-8 -*-
 import os
 from libcore.exception.config_key_not_exist_exception import ConfigKeyNotExistException
+from libcore.exception.config_value_not_in_range_exception import ConfigValueNotInRangeException
 from libcore.util.string_util import StringUtil
 
 
@@ -17,14 +18,19 @@ class Config:
         "lang"
     )
 
+    __allow_config_publishers = (
+        "Oracle",
+        "Amazon"
+    )
+
+    __allow_config_mirrors = (
+        "sb",
+        "you too"
+    )
+
     __allow_config_languages = (
         "English",
         "Chinese"
-    )
-
-    __allow_config_publishers (
-        "Oracle",
-        "Amazon"
     )
 
 
@@ -34,6 +40,7 @@ class Config:
         :param key: Key
         :return: Value
         """
+
 
         if StringUtil.is_empty(s=key):
             raise ConfigKeyNotExistException("{} is not in config file, the key is empty.".format(key))
@@ -49,8 +56,8 @@ class Config:
             row = value.strip()
             cols = row.split(" = ")
             if cols[0] == key:
+                self.__jvms_config.close()
                 return cols[1]
-
 
 
     def set(self,key:str,value:str)-> bool:
@@ -60,6 +67,23 @@ class Config:
         :param value: Value
         :return: 如果不存在这个配置项，那么返回 False
         """
+
+
+        if StringUtil.is_empty(s=key):
+            raise ConfigKeyNotExistException("{} is not in config file, the key is empty.".format(key))
+
+        if key not in self.__allow_config_keys:
+            raise ConfigKeyNotExistException("{} is not in config file, the key is irrational.".format(key))
+
+        if StringUtil.is_empty(s=value):
+            raise ConfigValueNotInRangeException("{} is not in in range, the value is empty.".format(value))
+
+        for allow_key in self.__allow_config_keys:
+            print(allow_key)
+            if  key == allow_key:
+                if value not in self.__allow_config_languages:
+                    raise ConfigValueNotInRangeException("{} is not in range, the value is irrational.".format(value))
+
 
         pass
 
