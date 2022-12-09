@@ -7,5 +7,6 @@ def jvmt():
     conf = Config()
     print(conf.get(key="lang"))
 
+
 if __name__ == '__main__':
     jvmt()
