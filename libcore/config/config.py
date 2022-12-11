@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
-import os
+import re
+from libcore.util.modify_configuration import Modify_Configuration
 from libcore.exception.config_key_not_exist_exception import ConfigKeyNotExistException
 from libcore.exception.config_value_not_in_range_exception import ConfigValueNotInRangeException
 from libcore.util.string_util import StringUtil
@@ -25,7 +26,7 @@ class Config:
 
     __allow_config_mirrors = (
         "sb",
-        "you too"
+        "you"
     )
 
     __allow_config_languages = (
@@ -40,8 +41,6 @@ class Config:
         :param key: Key
         :return: Value
         """
-
-
         if StringUtil.is_empty(s=key):
             raise ConfigKeyNotExistException("{} is not in config file, the key is empty.".format(key))
 
@@ -49,16 +48,14 @@ class Config:
             raise ConfigKeyNotExistException("{} is not in config file, the key is irrational.".format(key))
 
         self.__jvms_config = open(".jvms-config.ini",'r',encoding="UTF-8")
-        self.__jvms_config.readline()
+        self.__jvms_config.__next__()
         content = tuple(self.__jvms_config.readlines())
-        tmp = []
         for value in content:
             row = value.strip()
             cols = row.split(" = ")
             if cols[0] == key:
                 self.__jvms_config.close()
                 return cols[1]
-
 
     def set(self,key:str,value:str)-> bool:
         """
@@ -67,8 +64,6 @@ class Config:
         :param value: Value
         :return: 如果不存在这个配置项，那么返回 False
         """
-
-
         if StringUtil.is_empty(s=key):
             raise ConfigKeyNotExistException("{} is not in config file, the key is empty.".format(key))
 
@@ -78,16 +73,22 @@ class Config:
         if StringUtil.is_empty(s=value):
             raise ConfigValueNotInRangeException("{} is not in in range, the value is empty.".format(value))
 
-        for allow_key in self.__allow_config_keys:
-            print(allow_key)
-            if  key == allow_key:
-                if value not in self.__allow_config_languages:
-                    raise ConfigValueNotInRangeException("{} is not in range, the value is irrational.".format(value))
+        if key == self.__allow_config_keys[0]:
+            if value not in self.__allow_config_publishers:
+                raise ConfigValueNotInRangeException("{} is not in range, the value is irrational.".format(value))
+            Modify_Configuration.modify(k=key,v=value)
+        elif key == self.__allow_config_keys[1]:
+            if value not in self.__allow_config_mirrors:
+                raise ConfigValueNotInRangeException("{} is not in range, the value is irrational.".format(value))
+            Modify_Configuration.modify(k=key, v=value)
+        elif key == self.__allow_config_keys[2]:
+            if value not in self.__allow_config_languages:
+                raise ConfigValueNotInRangeException("{} is not in range, the value is irrational.".format(value))
+            Modify_Configuration.modify(k=key, v=value)
 
+        return True
 
-        pass
-
-    def get_with_default(self,key:str,value,default:str):
+    def get_with_default(self,key:str,value:str,default:str):
         """
         获取配置项，如果这个配置项的值为空，那么返回 default
         :param key: Key
@@ -95,10 +96,7 @@ class Config:
         :param default: 默认值
         :return: value
         """
-
         pass
-
-
 
 
 if __name__ == '__main__':

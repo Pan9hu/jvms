@@ -5,8 +5,9 @@ from libcore.config.config import Config
 
 def jvmt():
     conf = Config()
-    # print(conf.get(key="publisher"))
-    conf.set(key="lang",value="English")
+    print(conf.get(key="lang"))
+    print(conf.set(key="publisher",value="Oracle"))
+
 
 if __name__ == '__main__':
     jvmt()
