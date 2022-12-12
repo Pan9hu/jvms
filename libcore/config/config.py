@@ -1,22 +1,44 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
-import configparser
-from libcore.util.modify_configuration import Modify_Configuration
+import configparser, getpass , os, platform
 from libcore.exception.config_key_not_exist_exception import ConfigKeyNotExistException
 from libcore.exception.config_value_not_in_range_exception import ConfigValueNotInRangeException
 from libcore.util.string_util import StringUtil
-
+from libcore.exception.not_support_system_type_exception import NotSupportSystemTypeException
+from libcore.exception.get_system_info_exception import GetSystemInfoException
+from libcore.exception.config_file_parse_failed_exception import ConfigFileParseFailedException
 
 class Config:
     """
     配置
     """
+    """系统配置"""
+    __config_file_windows_tpl = "{systemroot}\\Users\\{username}\\AppData\\Local\\jjvmm\\config\\.jvms-config.ini"
+    __config_file_osx_tpl = "/Users/{username}/.jjvmm/Config/.jvms-config.ini"
+    __config_file_linux_tpl = "/home/{username}/.jjvmm/config/.jvms-config.ini"
+
+    __config_file_windows = None
+    __config_file_osx = None
+    __config_file_linux = None
+
+    __curr_os_type = None
+    __curr_username = None
+    __curr_windows_system_root = None
+
+    """文件配置"""
+    __config = None
+    __filename = None
 
     __allow_config_keys = (
         "publisher",
         "mirror",
         "lang"
     )
+
+    __default_publisher = "Oracle"
+    __default_mirror = ""
+    __default_lang = "English"
+
 
     __allow_config_publishers = (
         "Oracle",
@@ -25,7 +47,6 @@ class Config:
 
     __allow_config_mirrors = (
         "sb",
-        "you"
     )
 
     __allow_config_languages = (
@@ -35,6 +56,77 @@ class Config:
 
     __default = [__allow_config_publishers, __allow_config_mirrors, __allow_config_languages]
 
+
+    def __init_system_info(self):
+        """
+        初始化系统信息
+        :return:
+        """
+        os_type = platform.system()
+        curr_username = getpass.getuser()
+        if StringUtil.is_empty(curr_username):
+            raise GetSystemInfoException("Failed to get current user name.")
+        self.__curr_username = curr_username.strip()
+
+        if os_type == "Darwin":
+            self.__curr_os_type = "OSX"
+        elif os_type == "Windows":
+            system_root = os.getenv("SystemDrive", default="C:").strip()
+            if StringUtil.is_empty(system_root):
+                raise GetSystemInfoException("Inappropriate system root path: {}".format(system_root))
+            self.__curr_windows_system_root = system_root
+            self.__curr_os_type = "Windows"
+        elif os_type == "Linux":
+            self.__curr_os_type = "Linux"
+        else:
+            raise NotSupportSystemTypeException("Unrecognized operating system")
+
+    def __init_config_file_location(self):
+        """
+        初始化配置文件位置
+        """
+        if self.__curr_os_type == "OSX":
+            self.__config_file_osx = self.__config_file_osx_tpl.format(
+                username=self.__curr_username)
+        elif self.__curr_os_type == "Windows":
+            self.__config_file_windows = self.__config_file_windows_tpl.format(
+                systemroot=self.__curr_windows_system_root,
+                username=self.__curr_username)
+        elif self.__curr_os_type == "Linux":
+            self.__config_file_linux = self.__config_file_linux_tpl.format(
+                username=self.__curr_username)
+        else:
+            raise NotSupportSystemTypeException("Unrecognized operating system")
+
+    def __load_config_file(self):
+        """
+        加载配置文件
+        如果不存在此文件，那么不进行加载。
+        如果第一次保存配置的时，文件不存在，则创建文件。
+        如果文件存在，则加载且修改文件。
+        :return:
+        """
+        if self.__curr_os_type == "OSX":
+            self.__filename = self.__config_file_osx
+        elif self.__curr_os_type == "Windows":
+            self.__filename = self.__config_file_windows
+        elif self.__curr_os_type == "Linux":
+            self.__filename = self.__config_file_linux
+        else:
+            raise NotSupportSystemTypeException("Unrecognized operating system")
+
+        if os.path.exists(self.__filename):
+            self.__config = configparser.ConfigParser()
+            self.__config.read(self.__filename,encoding="UTF-8")
+            sections = self.__config.sections()
+            if "app" not in sections:
+                raise ConfigFileParseFailedException("{} parsing failed".format(self.__filename))
+
+    def __init__(self):
+        self.__init_system_info()
+        self.__init_config_file_location()
+        self.__load_config_file()
+
     def get(self,key:str) -> str:
         """
         获取配置项
@@ -42,9 +134,16 @@ class Config:
         :return: Value
         """
         self.__key_check(key=key)
-        config = configparser.ConfigParser()
-        config.read('.jvms-config.ini',encoding="UTF-8")
-        return (config.get('app',key))
+        if self.__config == None:
+            if key == "publisher":
+                return self.__default_publisher
+            elif key == "mirror":
+                return self.__default_mirror
+            elif key == "lang":
+                return self.__default_lang
+        else:
+            self.__config.read(self.__filename,encoding="UTF-8")
+            return (self.__config.get('app',key))
 
     def set(self,key:str,value:str)-> bool:
         """
@@ -60,42 +159,36 @@ class Config:
         if key == self.__allow_config_keys[0]:
             if value not in self.__allow_config_publishers:
                 raise ConfigValueNotInRangeException("{} is not in range, the value is irrational.".format(value))
-            Modify_Configuration.modify(k=key,v=value)
+            self.__modify_value(k=key, v=value)
         elif key == self.__allow_config_keys[1]:
             if value not in self.__allow_config_mirrors:
                 raise ConfigValueNotInRangeException("{} is not in range, the value is irrational.".format(value))
-            Modify_Configuration.modify(k=key, v=value)
+            self.__modify_value(k=key, v=value)
         elif key == self.__allow_config_keys[2]:
             if value not in self.__allow_config_languages:
                 raise ConfigValueNotInRangeException("{} is not in range, the value is irrational.".format(value))
-            Modify_Configuration.modify(k=key, v=value)
+            self.__modify_value(k=key, v=value)
 
         return True
 
-    def get_with_default(self,key:str, value:str) ->str:
+    def get_with_default(self,key:str, defalut:str) ->str:
         """
         获取配置项，如果这个配置项的值为空，那么返回 default
         :param key: Key
-        :param value: Value
-        :return: Value
+        :param default: Default
+        :return: value
         """
         self.__key_check(key=key)
-        self.__key_check(key=key)
-        config = configparser.ConfigParser()
-        config.read('.jvms-config.ini', encoding="UTF-8")
-        cur_value = config.get('app', key)
-        if cur_value == value:
-            return value
-        elif len(cur_value) == 0:
+        if self.__config == None:
             if key == "publisher":
-                return ("publisher's default: {}".format(self.__default[0]))
-            if key == "mirror":
-                return ("mirror's default: {}".format(self.__default[1]))
-            if key == "lang":
-                return ("lang's default: {}".format(self.__default[2]))
+                 return defalut if len(self.__default_publisher) == 0 else self.__default_publisher
+            elif key == "mirror":
+                return defalut if len(self.__default_mirror) == 0 else self.__default_mirror
+            elif key == "lang":
+                return defalut if len(self.__default_lang) == 0 else self.__default_lang
         else:
-            return "当前配置项的值为：{}".format(cur_value)
-
+            self.__config.read(self.__filename, encoding="UTF-8")
+            return defalut if len(self.__config.get('app', key)) == 0 else self.__config.get('app', key)
 
     def __key_check(self,key:str) -> bool:
         """
@@ -110,6 +203,29 @@ class Config:
             raise ConfigKeyNotExistException("{} is not in config file, the key is irrational.".format(key))
 
         return True
+
+    def __modify_value(self,k:str,v:str):
+        """
+        修改选定配置项的值
+        :param k:
+        :param v:
+        :return:
+        """
+        if self.__config == None:
+            if key == "publisher":
+                return self.__default_publisher
+            elif key == "mirror":
+                return self.__default_mirror
+            elif key == "lang":
+                return self.__default_lang
+        else:
+            self.__config.read(self.__filename,encoding="UTF-8")
+            sections = self.__config.sections()
+            if "app" not in sections:
+                raise ConfigFileParseFailedException("{} parsing failed".format(self.__filename))
+            self.config.set('app', k, v)
+            self.__config.write(open(self.__filename,"w",encoding="UTF-8"))
+
 
 
 if __name__ == '__main__':
