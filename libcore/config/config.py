@@ -217,13 +217,16 @@ class Config:
         if self.__config == None:
             work_dir = os.getcwd()
             config_tpl = work_dir+ "\\" +"assets\.jvms-config.ini.template"
-            config_dir = self.__filename.split(".jvms-config.ini")
-            os.makedirs(r'{}'.format(config_dir[0]))
-            shutil.copy(config_tpl, self.__filename)
-            self.__config = configparser.ConfigParser()
-            self.__config.read(self.__filename, encoding="UTF-8")
-            self.__config.set('app', k, v)
-            self.__config.write(open(self.__filename, "r+", encoding="UTF-8"))
+            if os.path.exists(config_tpl):
+                config_dir = self.__filename.split(".jvms-config.ini")
+                os.makedirs(r'{}'.format(config_dir[0]))
+                shutil.copy(config_tpl, self.__filename)
+                self.__config = configparser.ConfigParser()
+                self.__config.read(self.__filename, encoding="UTF-8")
+                self.__config.set('app', k, v)
+                self.__config.write(open(self.__filename, "r+", encoding="UTF-8"))
+            else:
+                raise GetSystemInfoException("Config template is missing: {}".format(config_tpl))
         else:
             self.__config.read(self.__filename,encoding="UTF-8")
             self.__config.set('app', k, v)
