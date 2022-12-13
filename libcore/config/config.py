@@ -39,7 +39,6 @@ class Config:
     __default_mirror = ""
     __default_lang = "English"
 
-
     __allow_config_publishers = (
         "Oracle",
         "Amazon"
@@ -51,14 +50,13 @@ class Config:
 
     __allow_config_languages = (
         "English",
-        "Chinese"
+        "Chinese",
+        "Japanese"
     )
-
 
     def __init_system_info(self):
         """
         初始化系统信息
-        :return:
         """
         os_type = platform.system()
         curr_username = getpass.getuser()
@@ -102,7 +100,6 @@ class Config:
         如果不存在此文件，那么不进行加载。
         如果第一次保存配置的时，文件不存在，则创建文件。
         如果文件存在，则加载且修改文件。
-        :return:
         """
         if self.__curr_os_type == "OSX":
             self.__filename = self.__config_file_osx
@@ -194,7 +191,6 @@ class Config:
         if key not in self.__allow_config_keys:
             raise ConfigKeyNotExistException("{} is not in config file, the key is irrational.".format(key))
 
-
     def __match_key(self,key:str)->str:
         """
         匹配默认配置项中的值
@@ -231,7 +227,6 @@ class Config:
             self.__config.read(self.__filename,encoding="UTF-8")
             self.__config.set('app', k, v)
             self.__config.write(open(self.__filename,"r+",encoding="UTF-8"))
-
 
 if __name__ == '__main__':
     pass
