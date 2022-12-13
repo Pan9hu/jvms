@@ -1,12 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
-import configparser, getpass , os, platform, shutil
+
+import os
+import configparser
+import getpass
+import platform
+import shutil
+
 from libcore.exception.config_key_not_exist_exception import ConfigKeyNotExistException
 from libcore.exception.config_value_not_in_range_exception import ConfigValueNotInRangeException
 from libcore.util.string_util import StringUtil
 from libcore.exception.not_support_system_type_exception import NotSupportSystemTypeException
 from libcore.exception.get_system_info_exception import GetSystemInfoException
 from libcore.exception.config_file_parse_failed_exception import ConfigFileParseFailedException
+
 
 class Config:
     """
@@ -36,8 +43,8 @@ class Config:
     )
 
     __default_publisher = "Oracle"
-    __default_mirror = ""
-    __default_lang = "English"
+    __default_mirror = "http://mirrors.xlab.io"
+    __default_lang = "en_US"
 
     __allow_config_publishers = (
         "Oracle",
@@ -49,9 +56,9 @@ class Config:
     )
 
     __allow_config_languages = (
-        "English",
-        "Chinese",
-        "Japanese"
+        "en_US",
+        "zh_CN",
+        "ja_JP"
     )
 
     def __init_system_info(self):

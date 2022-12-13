@@ -8,7 +8,7 @@ import configparser
 def jvmt():
     conf = Config()
     print(conf.get(key="lang"))
-    print(conf.set(key="lang",value="Chinese"))
+    print(conf.set(key="lang",value="zh_CN"))
     print(conf.get(key="lang"))
     print(conf.get(key="mirror"))
     print(conf.set(key="mirror", value="url"))
