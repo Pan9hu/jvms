@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
-import configparser, getpass , os, platform
+import configparser, getpass , os, platform, shutil
 from libcore.exception.config_key_not_exist_exception import ConfigKeyNotExistException
 from libcore.exception.config_value_not_in_range_exception import ConfigValueNotInRangeException
 from libcore.util.string_util import StringUtil
@@ -46,15 +46,13 @@ class Config:
     )
 
     __allow_config_mirrors = (
-        "sb",
+        "url",
     )
 
     __allow_config_languages = (
         "English",
         "Chinese"
     )
-
-    __default = [__allow_config_publishers, __allow_config_mirrors, __allow_config_languages]
 
 
     def __init_system_info(self):
@@ -118,8 +116,7 @@ class Config:
         if os.path.exists(self.__filename):
             self.__config = configparser.ConfigParser()
             self.__config.read(self.__filename,encoding="UTF-8")
-            sections = self.__config.sections()
-            if "app" not in sections:
+            if self.__config.has_section("app") == False:
                 raise ConfigFileParseFailedException("{} parsing failed".format(self.__filename))
 
     def __init__(self):
@@ -135,15 +132,11 @@ class Config:
         """
         self.__key_check(key=key)
         if self.__config == None:
-            if key == "publisher":
-                return self.__default_publisher
-            elif key == "mirror":
-                return self.__default_mirror
-            elif key == "lang":
-                return self.__default_lang
+            return self.__match_key(key=key)
         else:
-            self.__config.read(self.__filename,encoding="UTF-8")
-            return (self.__config.get('app',key))
+            self.__config.read(self.__filename, encoding="UTF-8")
+            val = self.__config.get('app',key).strip()
+            return self.__match_key(key=key) if StringUtil.is_empty(val) else val
 
     def set(self,key:str,value:str)-> bool:
         """
@@ -181,20 +174,19 @@ class Config:
         self.__key_check(key=key)
         if self.__config == None:
             if key == "publisher":
-                 return defalut if len(self.__default_publisher) == 0 else self.__default_publisher
+                 return defalut if len(self.__default_publisher) == 0 else self.__match_key(key=key)
             elif key == "mirror":
-                return defalut if len(self.__default_mirror) == 0 else self.__default_mirror
+                return defalut if len(self.__default_mirror) == 0 else self.__match_key(key=key)
             elif key == "lang":
-                return defalut if len(self.__default_lang) == 0 else self.__default_lang
+                return defalut if len(self.__default_lang) == 0 else self.__match_key(key=key)
         else:
             self.__config.read(self.__filename, encoding="UTF-8")
             return defalut if len(self.__config.get('app', key)) == 0 else self.__config.get('app', key)
 
-    def __key_check(self,key:str) -> bool:
+    def __key_check(self,key:str):
         """
         检查 Key 如果为空或不在配置项范围内，那么抛出异常
         :param key:
-        :return: 如果不为空且在配置项范围内，那么返回 True
         """
         if StringUtil.is_empty(s=key):
             raise ConfigKeyNotExistException("{} is not in config file, the key is empty.".format(key))
@@ -202,30 +194,40 @@ class Config:
         if key not in self.__allow_config_keys:
             raise ConfigKeyNotExistException("{} is not in config file, the key is irrational.".format(key))
 
-        return True
+
+    def __match_key(self,key:str)->str:
+        """
+        匹配默认配置项中的值
+        :param key:
+        :return:
+        """
+        if key == "publisher":
+            return self.__default_publisher
+        elif key == "mirror":
+            return self.__default_mirror
+        elif key == "lang":
+            return self.__default_lang
 
     def __modify_value(self,k:str,v:str):
         """
         修改选定配置项的值
-        :param k:
-        :param v:
-        :return:
+        :param k: key
+        :param v: value
         """
         if self.__config == None:
-            if key == "publisher":
-                return self.__default_publisher
-            elif key == "mirror":
-                return self.__default_mirror
-            elif key == "lang":
-                return self.__default_lang
+            work_dir = os.getcwd()
+            config_tpl = work_dir+ "\\" +"assets\.jvms-config.ini.template"
+            config_dir = self.__filename.split(".jvms-config.ini")
+            os.makedirs(r'{}'.format(config_dir[0]))
+            shutil.copy(config_tpl, self.__filename)
+            self.__config = configparser.ConfigParser()
+            self.__config.read(self.__filename, encoding="UTF-8")
+            self.__config.set('app', k, v)
+            self.__config.write(open(self.__filename, "r+", encoding="UTF-8"))
         else:
             self.__config.read(self.__filename,encoding="UTF-8")
-            sections = self.__config.sections()
-            if "app" not in sections:
-                raise ConfigFileParseFailedException("{} parsing failed".format(self.__filename))
-            self.config.set('app', k, v)
-            self.__config.write(open(self.__filename,"w",encoding="UTF-8"))
-
+            self.__config.set('app', k, v)
+            self.__config.write(open(self.__filename,"r+",encoding="UTF-8"))
 
 
 if __name__ == '__main__':
