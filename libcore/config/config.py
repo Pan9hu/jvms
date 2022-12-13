@@ -212,7 +212,10 @@ class Config:
         """
         if self.__config == None:
             work_dir = os.getcwd()
-            config_tpl = work_dir+ "\\" +"assets\.jvms-config.ini.template"
+            if self.__curr_os_type == "Windows":
+                config_tpl = work_dir+ "\\" +"assets\.jvms-config.ini.template"
+            else:
+                config_tpl = work_dir + "/" + "assets/.jvms-config.ini.template"
             if os.path.exists(config_tpl):
                 config_dir = self.__filename.split(".jvms-config.ini")
                 os.makedirs(r'{}'.format(config_dir[0]))
