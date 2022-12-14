@@ -21,6 +21,8 @@ class App:
     __file = None
 
     # TODO Getter/Setter
+    def get_file(self)->str:
+        return self.__file
 
 class Index:
     """
@@ -33,7 +35,10 @@ class Index:
         # TODO 根据环境变量和配置文件读取镜像源
         try:
             mirror = config.get("mirror")
-            self.__mirror_url
+            # TODO 处理兼容 http://mirrors.xlab.io 和 http://mirrors.xlab.io/
+            self.__mirror_url = mirror + self.__index_json
+        except ConfigKeyNotExistException as e:
+            raise IndexerInitFailedException("Can not read mirror from config file, because: {}".format(e))
 
     def get_version(self)->str:
         pass

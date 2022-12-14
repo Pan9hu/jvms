@@ -5,7 +5,6 @@ import os
 import configparser
 import getpass
 import platform
-import shutil
 
 from libcore.exception.config_key_not_exist_exception import ConfigKeyNotExistException
 from libcore.exception.config_value_not_in_range_exception import ConfigValueNotInRangeException
@@ -52,7 +51,7 @@ class Config:
     )
 
     __allow_config_mirrors = (
-        "url",
+        "http://mirrors.xlab.io",
     )
 
     __allow_config_languages = (
@@ -131,10 +130,13 @@ class Config:
     def get(self,key:str) -> str:
         """
         获取配置项
+        配置获取优先级: 当前环境变量 > 配置文件 > 默认值
         :param key: Key
         :return: Value
         """
         self.__key_check(key=key)
+        key = key.strip()
+
         if self.__config == None:
             return self.__match_key(key=key)
         else:
@@ -150,6 +152,7 @@ class Config:
         :return: 如果不存在这个配置项，那么返回 False
         """
         self.__key_check(key=key)
+        key = key.strip()
         if StringUtil.is_empty(s=value):
             raise ConfigValueNotInRangeException("{} is not in in range, the value is empty.".format(value))
 
@@ -171,11 +174,13 @@ class Config:
     def get_with_default(self,key:str, defalut:str) ->str:
         """
         获取配置项，如果这个配置项的值为空，那么返回 default
+        配置获取优先级: 当前环境变量 > 配置文件 > 指定的默认值 > 默认值
         :param key: Key
         :param default: Default
         :return: value
         """
         self.__key_check(key=key)
+        key = key.strip()
         if self.__config == None:
             if key == "publisher":
                  return defalut if len(self.__default_publisher) == 0 else self.__match_key(key=key)
@@ -218,21 +223,21 @@ class Config:
         :param v: value
         """
         if self.__config == None:
-            work_dir = os.getcwd()
-            if self.__curr_os_type == "Windows":
-                config_tpl = work_dir+ "\\" +"assets\.jvms-config.ini.template"
-            else:
-                config_tpl = work_dir + "/" + "assets/.jvms-config.ini.template"
-            if os.path.exists(config_tpl):
-                config_dir = self.__filename.split(".jvms-config.ini")
-                os.makedirs(r'{}'.format(config_dir[0]))
-                shutil.copy(config_tpl, self.__filename)
-                self.__config = configparser.ConfigParser()
-                self.__config.read(self.__filename, encoding="UTF-8")
-                self.__config.set('app', k, v)
-                self.__config.write(open(self.__filename, "r+", encoding="UTF-8"))
-            else:
-                raise GetSystemInfoException("Config template is missing: {}".format(config_tpl))
+            # work_dir = os.getcwd()
+            # if self.__curr_os_type == "Windows":
+            #     config_tpl = work_dir+ "\\" +"assets\.jvms-config.ini.template"
+            # else:
+            #     config_tpl = work_dir + "/" + "assets/.jvms-config.ini.template"
+            # if os.path.exists(config_tpl):
+            config_dir = self.__filename.split(".jvms-config.ini")
+            os.makedirs(r'{}'.format(config_dir[0]))
+            f = open(self.__filename,'w',encoding='UTF-8')
+            # shutil.copy(config_tpl, self.__filename)
+            f.write()
+            self.__config = configparser.ConfigParser()
+            self.__config.read(self.__filename, encoding="UTF-8")
+            self.__config.set('app', k, v)
+            self.__config.write(open(self.__filename, "r+", encoding="UTF-8"))
         else:
             self.__config.read(self.__filename,encoding="UTF-8")
             self.__config.set('app', k, v)

@@ -1,19 +1,25 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
+
+import click
 import os
 import shutil
 from libcore.config.config import Config
 import configparser
 
-def jvmt():
-    conf = Config()
-    print(conf.get(key="lang"))
-    print(conf.set(key="lang",value="zh_CN"))
-    print(conf.get(key="lang"))
-    print(conf.get(key="mirror"))
-    print(conf.set(key="mirror", value="url"))
-    print(conf.get(key="mirror"))
-    print(conf.get_with_default(key="mirror",defalut="ok"))
+
+
+@click.group()
+def jvms():
+    pass
+    # conf = Config()
+    # print(conf.get(key="lang"))
+    # print(conf.set(key="lang",value="zh_CN"))
+    # print(conf.get(key="lang"))
+    # print(conf.get(key="mirror"))
+    # print(conf.set(key="mirror", value="url"))
+    # print(conf.get(key="mirror"))
+    # print(conf.get_with_default(key="mirror",defalut="ok"))
     # # conf = configparser.ConfigParser()
     # conf.read(".jvms-config.ini",encoding="UTF-8")
     # result = conf.items("app")
@@ -37,9 +43,5 @@ def jvmt():
     # shutil.copy(config_tpl,A)
 
 
-
-
-
-
 if __name__ == '__main__':
-    jvmt()
+    jvms()
