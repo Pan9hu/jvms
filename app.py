@@ -1,20 +1,51 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
+import json
+import requests
 import click
 import os
 import shutil
 from libcore.config.config import Config
+from libcore.repository.index import Index
 import configparser
 
 
 
 # @click.group()
 def jvms():
+    i = Index()
+    print(i.get_publisher())
+    print(i.get_version())
+
+
+
     # pass
-    conf = Config()
-    print(conf.get(key="lang"))
-    print(conf.get_with_default(key="lang", defalut="a"))
+    # conf = Config()
+    # mirror = conf.get(key="mirror")
+    # Json = 'index.json'
+    # mirror = "http://192.168.3.11"
+    # print(mirror[-1])
+    # if mirror[-1] != '/':
+    #     mirror_url = mirror + '/' + Json
+    # else:
+    #     mirror_url = mirror + Json
+    # print(mirror)
+    # response = requests.get(mirror_url)
+    # print(response.json())
+    # print(type(response.json()))
+    # print(response.json()['apps'])
+    # print(type(response.json()['apps']))
+    # l = len(response.json()['apps'])
+    # print(l)
+    # a = 'amazon'
+    # for i in range(l):
+    #     s = response.json()['apps'][i]
+    #     if a in s:
+    #         print(s[a])
+        # print(type(s))
+        # print(s)
+    # print(conf.get_with_default(key="lang", defalut="a"))
     # print(conf.set(key="lang",value="zh_CN"))
     # print(conf.get(key="lang"))
     # print(conf.get(key="publisher"))

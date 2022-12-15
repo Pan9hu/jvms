@@ -30,25 +30,62 @@ class Index:
     """
     __index_json = "index.json"
     __mirror_url = ""
+    __config = None
 
     def __init__(self,config:Config = None):
-        # TODO 根据环境变量和配置文件读取镜像源
         try:
-            mirror = config.get("mirror")
-            # TODO 处理兼容 http://mirrors.xlab.io 和 http://mirrors.xlab.io/
-            self.__mirror_url = mirror + self.__index_json
+            self.__config = Config()
+            mirror = self.__config.get(key="mirror")
+            if mirror[-1] != '/':
+                self.__mirror_url = mirror + '/' + self.__index_json
+            else:
+                self.__mirror_url = mirror + self.__index_json
         except ConfigKeyNotExistException as e:
             raise IndexerInitFailedException("Can not read mirror from config file, because: {}".format(e))
 
-    def get_version(self)->str:
-        pass
+    def get_version(self)->str | None:
+        response = requests.get(self.__mirror_url)
+        if response.status_code != 200:
+            return None
 
-    def get_publisher(self)->str:
-        pass
+        json_response = response.json()
+        index_version = json_response['version']
 
+        if StringUtil.is_empty(index_version):
+            return None
 
-    def get_update_time(self)->str:
-        pass
+        return index_version
+
+    def get_publisher(self)->str | None:
+        publisher = self.__config.get("publisher").lower().strip()
+        response = requests.get(self.__mirror_url)
+        if response.status_code != 200:
+            return None
+
+        json_response = response.json()
+        index_publishers = response.json()['apps']
+        for i in range(len(index_publishers)):
+            app_publisher = response.json()['apps'][i]
+            if publisher in app_publisher:
+                index_publisher = app_publisher[publisher]
+
+        if StringUtil.is_empty(index_publisher):
+            return None
+
+        return index_publisher
+
+    def get_update_time(self)->str | None:
+        response = requests.get(self.__mirror_url)
+        if response.status_code != 200:
+            return None
+
+        json_reponse = response.json()
+        update_time = json_reponse['update-time']
+
+        if StringUtil.is_empty(update_time):
+            return None
+
+        return update_time
 
     def get_app_version_by_publisher(self,publisher:str)->tuple:
         pass

@@ -43,7 +43,7 @@ class Config:
     )
 
     __default_publisher = "Oracle"
-    __default_mirror = "http://mirrors.xlab.io"
+    __default_mirror = "http://192.168.3.11"
     __default_lang = "en_US"
 
     __allow_config_publishers = (
@@ -139,7 +139,7 @@ class Config:
         """
         self.__key_check(key=key)
         key = key.strip()
-        self.__get_env_val(k=key)
+        self.__get_env_val(key=key)
         if self.__config == None:
             return self.__match_key(key=key)
         else:
@@ -242,16 +242,16 @@ class Config:
             self.__config.set('app', k, v)
             self.__config.write(open(self.__filename,"r+",encoding="UTF-8"))
 
-    def __get_env_val(self,k:str)->str:
-        if k == "publisher":
+    def __get_env_val(self,key:str)->str:
+        if key == "publisher":
             self.__env_val = os.getenv("JVMS_PUBILSHER")
             if self.__env_val != None:
                 return self.__env_val
-        elif k == "mirror":
+        elif key == "mirror":
             self.__env_val = os.getenv("JVMS_MIRROR")
             if self.__env_val != None:
                 return self.__env_val
-        elif k == "lang":
+        elif key == "lang":
             self.__env_val = os.getenv("JVMS_LANG")
             if self.__env_val != None:
                 return self.__env_val
