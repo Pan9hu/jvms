@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
+
 import os
 import configparser
 import getpass
@@ -59,6 +60,8 @@ class Config:
         "zh_CN",
         "ja_JP"
     )
+
+    __env_val = None
 
     def __init_system_info(self):
         """
@@ -136,7 +139,7 @@ class Config:
         """
         self.__key_check(key=key)
         key = key.strip()
-
+        self.__get_env_val(k=key)
         if self.__config == None:
             return self.__match_key(key=key)
         else:
@@ -181,16 +184,18 @@ class Config:
         """
         self.__key_check(key=key)
         key = key.strip()
+        defalut = defalut.strip()
+        self.__get_env_val(k=key)
         if self.__config == None:
             if key == "publisher":
-                 return defalut if len(self.__default_publisher) == 0 else self.__match_key(key=key)
+                 return defalut if len(defalut) != 0 else self.__match_key(key=key)
             elif key == "mirror":
-                return defalut if len(self.__default_mirror) == 0 else self.__match_key(key=key)
+                return defalut if len(defalut) != 0 else self.__match_key(key=key)
             elif key == "lang":
-                return defalut if len(self.__default_lang) == 0 else self.__match_key(key=key)
+                return defalut if len(defalut) != 0 else self.__match_key(key=key)
         else:
             self.__config.read(self.__filename, encoding="UTF-8")
-            return defalut if len(self.__config.get('app', key)) == 0 else self.__config.get('app', key)
+            return defalut if len(self.__config.get('app', key)) <= 0 else self.__config.get('app', key)
 
     def __key_check(self,key:str):
         """
@@ -223,24 +228,34 @@ class Config:
         :param v: value
         """
         if self.__config == None:
-            # work_dir = os.getcwd()
-            # if self.__curr_os_type == "Windows":
-            #     config_tpl = work_dir+ "\\" +"assets\.jvms-config.ini.template"
-            # else:
-            #     config_tpl = work_dir + "/" + "assets/.jvms-config.ini.template"
-            # if os.path.exists(config_tpl):
             config_dir = self.__filename.split(".jvms-config.ini")
             os.makedirs(r'{}'.format(config_dir[0]))
             f = open(self.__filename,'w',encoding='UTF-8')
             self.__config = configparser.ConfigParser()
-            self.__config.read(self.__filename, encoding="UTF-8")
-
-            self.__config.set('app', k, v)
-            self.__config.write(open(self.__filename, "r+", encoding="UTF-8"))
+            self.__config["app"] = {'publisher' : 'Oracle',
+                                    'mirror': 'http://mirrors.xlab.io',
+                                    'lang': 'en_US'}
+            self.__config.set("app",k,v)
+            self.__config.write(open(self.__filename, "w", encoding="UTF-8"))
         else:
             self.__config.read(self.__filename,encoding="UTF-8")
             self.__config.set('app', k, v)
             self.__config.write(open(self.__filename,"r+",encoding="UTF-8"))
+
+    def __get_env_val(self,k:str)->str:
+        if k == "publisher":
+            self.__env_val = os.getenv("JVMS_PUBILSHER")
+            if self.__env_val != None:
+                return self.__env_val
+        elif k == "mirror":
+            self.__env_val = os.getenv("JVMS_MIRROR")
+            if self.__env_val != None:
+                return self.__env_val
+        elif k == "lang":
+            self.__env_val = os.getenv("JVMS_LANG")
+            if self.__env_val != None:
+                return self.__env_val
+
 
 if __name__ == '__main__':
     pass

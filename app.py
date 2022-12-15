@@ -9,16 +9,17 @@ import configparser
 
 
 
-@click.group()
+# @click.group()
 def jvms():
-    pass
-    # conf = Config()
-    # print(conf.get(key="lang"))
+    # pass
+    conf = Config()
+    print(conf.get(key="lang"))
+    print(conf.get_with_default(key="lang", defalut="a"))
     # print(conf.set(key="lang",value="zh_CN"))
     # print(conf.get(key="lang"))
-    # print(conf.get(key="mirror"))
-    # print(conf.set(key="mirror", value="url"))
-    # print(conf.get(key="mirror"))
+    # print(conf.get(key="publisher"))
+    # print(conf.set(key="publisher", value="Amazon"))
+    # print(conf.get(key="publisher"))
     # print(conf.get_with_default(key="mirror",defalut="ok"))
     # # conf = configparser.ConfigParser()
     # conf.read(".jvms-config.ini",encoding="UTF-8")
