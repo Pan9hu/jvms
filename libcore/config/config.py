@@ -232,10 +232,9 @@ class Config:
             config_dir = self.__filename.split(".jvms-config.ini")
             os.makedirs(r'{}'.format(config_dir[0]))
             f = open(self.__filename,'w',encoding='UTF-8')
-            # shutil.copy(config_tpl, self.__filename)
-            f.write()
             self.__config = configparser.ConfigParser()
             self.__config.read(self.__filename, encoding="UTF-8")
+
             self.__config.set('app', k, v)
             self.__config.write(open(self.__filename, "r+", encoding="UTF-8"))
         else:
