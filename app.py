@@ -1,25 +1,30 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
+
 import json
 import requests
 import click
 import os
 import shutil
-from libcore.config.config import Config
-from libcore.repository.index import Index
 import configparser
 
+from libcore.config.config import Config
+from libcore.repository.index import Index
 
 
 # @click.group()
 def jvms():
     i = Index()
-    print(i.get_publisher())
+    # print(i.get_publisher())
     # print(i.get_version())
     # print(i.get_update_time())
-    print(i.get_app_version_by_publisher('orAcle     '))
-    print(i.get_app('orAcle     ','17.0.5        '))
+    # print(i.get_app_version_by_publisher('orAcle     '))
+    app = i.get_app('orAcle     ','17.0.5        ')
+    print(app)
+    l = len(app)
+    for i in range(l):
+        print(app[i])
 
 
     # url = 'http://192.168.3.11/apps/oracle/versions/17.0.5.json'
