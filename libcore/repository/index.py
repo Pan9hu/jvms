@@ -23,7 +23,12 @@ class App:
 
     # TODO Getter/Setter
     def get_file(self)->str:
+
         return self.__file
+
+    def set_file(self)->bool:
+        pass
+
 
 class Index:
     """
@@ -61,9 +66,9 @@ class Index:
             return None
 
         json_response = response.json()
-        index_publishers = response.json()['apps']
+        index_publishers = json_response['apps']
         for i in range(len(index_publishers)):
-            app_publisher = response.json()['apps'][i]
+            app_publisher = json_response['apps'][i]
             for index_publisher in app_publisher:
                 list_publishers.append(index_publisher)
 
@@ -90,9 +95,9 @@ class Index:
             return None
 
         json_response = response.json()
-        index_publishers = response.json()['apps']
+        index_publishers = json_response['apps']
         for i in range(len(index_publishers)):
-            app_publisher = response.json()['apps'][i]
+            app_publisher = json_response['apps'][i]
             if publisher in app_publisher:
                 index_publisher = app_publisher[publisher]
 
@@ -116,6 +121,7 @@ class Index:
             return None
         if StringUtil.is_empty(version):
             return None
+
         publisher = publisher.strip().lower()
         version = version.strip()
 
@@ -124,12 +130,11 @@ class Index:
             return None
 
         json_response = response.json()
-        index_publishers = response.json()['apps']
+        index_publishers = json_response['apps']
         for i in range(len(index_publishers)):
-            app_publisher = response.json()['apps'][i]
+            app_publisher = json_response['apps'][i]
             if publisher in app_publisher:
                 index_publisher = app_publisher[publisher]
-        print(index_publisher)
         if StringUtil.is_empty(index_publisher):
             return None
 

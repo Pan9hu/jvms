@@ -14,7 +14,7 @@ class RemoteRepository:
         self.__indexer = ndexer
 
 
-    def get_file_by_app(self,app:App):
+    def get_file_by_app(self,app:App)->str:
         return app.get_file()
 
 if __name__ == '__main__':
