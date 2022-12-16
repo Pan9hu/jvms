@@ -17,10 +17,27 @@ def jvms():
     i = Index()
     print(i.get_publisher())
     print(i.get_version())
+    print(i.get_update_time())
+    print(i.get_app_version_by_publisher('oracle'))
+    print(i.get_app('oracle','17.0.5'))
 
 
+    # url = 'http://192.168.3.11/apps/oracle/versions/17.0.5.json'
+    # b = requests.get(url).json()
+    # print(b)
+    # l = len(b)
+    # print(l)
+    # for i in range(l):
+    #     app = b[i]
+    #     print(app)
 
-    # pass
+    # c = [{'oracle': 'apps/oracle/index.json'}, {'amazon': 'apps/amazon/index.json'}]
+    # l = len(c)
+    # for j in range(l):
+    #     b = c[j]
+    #     for i in b:
+    #         print(i)
+    # # pass
     # conf = Config()
     # mirror = conf.get(key="mirror")
     # Json = 'index.json'
