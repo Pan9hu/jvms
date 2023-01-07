@@ -18,6 +18,7 @@ class LocalRepository:
             raise NotSupportRepositoryIndexerException("Local Repository indexer is null")
         self.__indexer = indexer
 
+
     def get_file_by_app(self,app:App)->str:
         """
         FileID: Publisher::Version::OS::Arch::Dist

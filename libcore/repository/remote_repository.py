@@ -11,7 +11,7 @@ class RemoteRepository:
     def __init__(self,indexer:Index):
         if indexer is None:
             raise NotSupportSystemTypeException("Remote Repository indexer is null")
-        self.__indexer = ndexer
+        self.__indexer = indexer
 
 
     def get_file_by_app(self,app:App)->str:

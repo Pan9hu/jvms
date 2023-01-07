@@ -17,7 +17,7 @@ class App:
     __os = None
     __arch = None
     __dist = None
-    __checksum_alog = None
+    __checksum_algo = None
     __checksum_content = None
     __file = None
 

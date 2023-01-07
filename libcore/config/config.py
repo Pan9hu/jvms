@@ -43,7 +43,7 @@ class Config:
     )
 
     __default_publisher = "Oracle"
-    __default_mirror = "http://192.168.3.11"
+    __default_mirror = "http://8.134.72.192:9900"
     __default_lang = "en_US"
 
     __allow_config_publishers = (

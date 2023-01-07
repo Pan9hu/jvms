@@ -16,15 +16,15 @@ from libcore.repository.index import Index
 # @click.group()
 def jvms():
     i = Index()
-    # print(i.get_publisher())
-    # print(i.get_version())
-    # print(i.get_update_time())
-    # print(i.get_app_version_by_publisher('orAcle     '))
+    print(i.get_publisher())
+    print(i.get_version())
+    print(i.get_update_time())
+    print(i.get_app_version_by_publisher('orAcle     '))
     app = i.get_app('orAcle     ','17.0.5        ')
     print(app)
-    l = len(app)
-    for i in range(l):
-        print(app[i])
+    # l = len(app)
+    # for i in range(l):
+    #     print(app[i])
 
 
     # url = 'http://192.168.3.11/apps/oracle/versions/17.0.5.json'
